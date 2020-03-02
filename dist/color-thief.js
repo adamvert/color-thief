@@ -14,7 +14,7 @@ function createPixelArray(imgData, pixelCount, quality) {
 
         // If pixel is mostly opaque and not white
         if (typeof a === 'undefined' || a >= 125) {
-            if (!(r > 250 && g > 250 && b > 250)) {
+            if (!(r > 220 && g > 220 && b > 220)) {
                 pixelArray.push([r, g, b]);
             }
         }
@@ -71,6 +71,27 @@ function getColor(img, quality) {
 
 }
 
+function createSortedPalette (pixelArray) {
+  // array of objects of form 
+  // {
+  //   count: number,
+  //   rgb: [r, g, b] 
+  // }
+  let palette = []
+  pixelArray.forEach(px => {
+    let paletteEntry = palette.find(pe => JSON.stringify(pe.rgb) === JSON.stringify(px))
+    if (!paletteEntry) {
+      paletteEntry = {
+        count: 0,
+        rgb: px
+      }
+      palette.push(paletteEntry)
+    }
+    paletteEntry.count++
+  })
+  return palette.sort((a, b) => b.count - a.count)
+}
+
 function getPalette(img, colorCount = 10, quality = 10) {
     const options = validateOptions({
         colorCount,
@@ -83,8 +104,10 @@ function getPalette(img, colorCount = 10, quality = 10) {
                 const pixelCount = imgData.shape[0] * imgData.shape[1];
                 const pixelArray = createPixelArray(imgData.data, pixelCount, options.quality);
 
-                const cmap = quantize(pixelArray, options.colorCount);
-                const palette = cmap? cmap.palette() : null;
+                // const cmap = quantize(pixelArray, options.colorCount);
+                // const palette = cmap? cmap.palette() : null;
+
+                const palette = createSortedPalette(pixelArray)
 
                 resolve(palette);
             })
