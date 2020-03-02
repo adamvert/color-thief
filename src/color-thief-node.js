@@ -90,6 +90,7 @@ function createSortedPalette (pixelArray) {
     paletteEntry.count++
   })
   return palette.sort((a, b) => b.count - a.count)
+    .map(pe => pe.rgb)
 }
 
 function getPalette(img, colorCount = 10, quality = 10) {
